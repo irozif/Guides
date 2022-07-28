@@ -1,5 +1,6 @@
 
 
+
 # Epic Gamer Dossier v1.2
 clap defenses. LuaU pentest tutorial
 
@@ -181,11 +182,11 @@ If you have made GUIs before, I recommend this library.
 > - A manually inserted keybind that hides and unhides the window, without destroying the GUI. `:ToggleUI()`
 > - **Labels** and **information boxes** that support user-friendliness.
 
-# 2. Environments (wyn#0001)
+# 2. Function Manipulation
 
 We will now learn how to abuse scripts we find in DarkDex to take penetrate actual vulnerabilities in-game. Try not to skip too much here.
 
-## 2.1 Basic LocalScripts and ModuleScripts
+## 2.1 LocalScript and ModuleScript environments
 
 LocalScripts and ModuleScripts replicated to the client-side are open to numerous attack vectors. We'll start simple.
 
@@ -210,18 +211,18 @@ A script environment is everything in a script. We can access these environments
 In ModuleScripts, actions such as
 `RoninKatana.Blade:CalculateHitbox(arg1, arg2)`
 are the same as
-`RoninKatana.Blade.CalculateHitbox(Blade, arg1, arg2)`.
+`RoninKatana.Blade.CalculateHitbox(RoninKatana.Blade, arg1, arg2)`.
 
 This is for complicated object-oriented programming reasons that we don't need to know too precisely.
-> Basically, CalculateHitbox is a function acquired from somewhere else, and since we can't rewrite it for every single "Blade", we need to figure out what the function is actually going to apply itself to using the first argument. Stuff like this is called **"sugar syntax"**, since it just makes the code easier to read and type.
+> Basically, `CalculateHitbox` is a function standardly distributed from somewhere else, and since we can't tailor a rewrite for every single use of `CalculateHitbox`, we need to figure out what the function is actually going to apply itself to using the first argument. Stuff like this is called **"sugar syntax"**, since it just makes the code easier to read and type.
 
-This is also how `FireServer` works for remotes. FireServer is actually only one function, so it needs to figure out what remote event it needs to connect to from the first argument.
+This is also how `FireServer` works for remotes. FireServer is actually only "one" function, so it needs to figure out what remote event it needs to connect to from the first argument.
 `game:GetService("ReplicatedStorage").SelfDamage:FireServer(game:GetService("Players").LocalPlayer.Character)`
-The function `FireServer` processes the arguments `SelfDamage` and the local player, so it sends the remote call `SelfDamage` to the server.
+The function `FireServer` processes the arguments `ReplicatedStorage.SelfDamage` and the local player, so it sends the remote call `SelfDamage` to the server.
 
 ### B) Decompiling scripts
 Games "compile" human-friendly code into machine-ready code. Reversing this process isn't perfect.
-#### ⬛ Decompilation loses many variable names, as well as concise readability. However, function names tend to persist, especially in ModuleScripts.
+#### ⬛ Decompilation loses many variable names, as well as concise readability. However, function names tend to persist, especially in ModuleScripts. Furthermore, it is still vital to try to understand the decompiled code, unreadable as it may be.
 Before compiling (studio-side):
 ```
 local plr = game:GetService("Players").LocalPlayer       -- This LocalScript sets your WalkSpeed to 16.
@@ -243,13 +244,14 @@ local v3 = v1.GetService
 local v4 = v3(v1,v2)
 local v5 = v4.LocalPlayer
 local v7 = wait
+local v40 = true
 local v27 = 16
 local v28 = 0.1
-while true do
+while v40 do
   v7()
   local v6 = v5.Character
   if v6 then
-    break
+    v40 = false
   end
 end
 v7(v28)
@@ -275,7 +277,8 @@ v8(function()
   end
 end)
 ```
-## 2.2 Upvalues; constants; `getgc()`; `getinfo(func)`
+It's horrid! Although readability is greatly reduced, you can still get somewhat of a sense of what the function does. Are there connections? Does math occur? Where does it mention our humanoid?
+## 2.2 Basic upvalues and constants
 How do we spoof the values that functions handle?
 > [wyn#0001 Exploiting #6 - Upvalues and Constants](https://www.youtube.com/watch?v=sAjmwhmGgeU)
 
@@ -285,7 +288,7 @@ The video covered:
 - What upvalues and constants are
 - Getting and setting constants and upvalues
 
-It does not cover `getgc()`, but we will discuss it anyway.
+##### Sometimes functions cannot be directly manipulated via accessing a script environment using its path. Circumventing this issue requires `getgc()`, which we will discuss later.
 
 ### A) Constants; upvalues
 | Upvalues | Constants |
@@ -294,17 +297,29 @@ It does not cover `getgc()`, but we will discuss it anyway.
 | `getupvalues(funcPath)` | `getconstants(funcPath)` |
 | `setupvalue(funcPath, index, value)` | `setconstant(funcPath, index, value)`|
 Other than the change in name for their respective functions, you use them in the same manner for either kind of value.
-[Concise refresher on constants and upvalues](https://x.synapse.to/docs/development/debug_api.html), if you need more.
-### B) `getgc()` and `getinfo(` for "hidden" functions
+[Read this as well](https://x.synapse.to/docs/development/debug_api.html). It is very concise.
 
-Let's say you found a LocalScript called "SprintHandler". Decompiling gives you a lot of resources, and you're *confident* you can screw with it to give yourself infinite sprint. However, when you do:
-```
-local env = getsenv(game:GetService("Players").LocalPlayer.SprintHandler)
-table.foreach(env,print) -- trick to print all of a table in one line
-```
-you only get:
-`script SprintHandler`
+## 2.3 Tables; metatables; hooks
 
-To circumvent this issue, we will use two useful functions that normal developers don't have access to.
-#### ⬛ `getgc()` returns an enormous table of all the functions that have been used and afterwards disposed of in LuaU's garbage collector.
-#### ⬛ `debug.getinfo(func)` returns a table of information regarding the given function argument.
+A metatable sounds scary, but it's just instructions given to a table on what to do when something interacts with it.
+> Try to understand basic metatables here, so you at least have a foundation to build upon before going to metamethod hooks:
+> [DevForum - Metatables and Metamethods](https://devforum.roblox.com/t/all-you-need-to-know-about-metatables-and-metamethods/503259) (section 1, 2, 3, maybe 6)
+> Or, live on the edge and continue.
+
+So, metatables give instructions before failing something that normally should fail. Beyond the standard metamethods like `#tbl` to count elements in an array, you can do things like making similar words do the same command.
+```
+cmds = {
+  remotespy = function() loadstring("print('I forgor the link to rspy')")() end
+}
+othercmds = {
+  rspy = "remotespy",
+  spy = "remotespy"
+}
+setmetatable(cmds, {
+  __index = function(tbl, index)
+    if othercmds[index] then return cmds[othercmds[index]] end
+  end
+})
+cmds["rspy"]()
+```
+
