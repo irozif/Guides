@@ -1,30 +1,29 @@
 
 
 
-# Epic Gamer Dossier v1.2
-clap defenses. LuaU pentest tutorial
+# Textbook Exploiting
+### Preface
 
-###### Feel free to skim read text or 1.75x speed a video if you already know it all.
+When you graduated third grade, you made a grand achievement: you read part of a textbook. Do you still remember how?
+- Get down main ideas, and try to understand their nuance.
+- Skim read where you need to.
+- Try things out *in practice* and go into games. This isn't homework, you're just learning how to spam remotes to pretend you know scripting. Counter-Strike kids grind on Aim-Lab all day with more determination than you.
 
-# 1. Absolute Basics (wyn#0001)
+Code is actually fun when you see things come together. Finding a vulnerability and watching a game's defenses crash apart is a beautiful sight. Or, stay illiterate and be a helpless CTRL+V jockey. Your life is yours to live.
 
-This section will cover and review content based on wyn#0001 tutorials. You can:
-- read my notes after the video, or
-- follow along the video with my notes, or
-- skip the video and just read the notes (boring but fast textbook style)
+### Content
+(pending)
 
-## 1.1 Tools; variables; conditionals; `while` loops; `spawn(` functions; `wait()`
-The zoom is subpar, so set resolution to 1080p and zoom. Change speed if you wish, but don't just skip over something you don't understand.
+# 1) 0IQ Basics
+Content will **amend** the video below. If you actually watch it, zoom in (his zoom sucks), and change speed to 1.25x or more (if you wish).
+wyn is concise, quick, and real. Length is 30 minutes because 0 IQ + 30 IQ is only 30 IQ.
 >[wyn#0001 Exploiting #1 - Getting Started](https://www.youtube.com/watch?v=dCx_bVm9x88)
 
-### Review:
-
-The video covered:
-- getting an editor
-- basic `_G` global and `local` local variables
-- making multiple conditional `while` loops with `spawn(function()`
-- basic RemoteSpy and remotes
-	- [Infinite Yield](https://github.com/EdgeIY/infiniteyield) offers ;rspy and other useful utilities
+### Aim:
+- **Get a text editor**. Don't save it all in your executor.
+- **Learn variables**. global `getgenv()` local `local` 
+- **Conditional loops** `while x do` `task.spawn(function()` `if x then break`
+- **Remote events** `FireServer` Use ;rspy on [Infinite Yield](https://github.com/EdgeIY/infiniteyield) for RemoteSpy
 
 ###  A) Editors; file organization
 
@@ -33,14 +32,40 @@ The video covered:
 	- capable of installing many add-ons such as "Execute to Synapse" and GitHub synchronization (Don't worry about GitHub until later).
 	- lower lag than normal VSCode
 - [Notepad++](https://notepad-plus-plus.org/downloads/)
-	- very lightweight and simple though add-ons are less useful
+	- very lightweight and simple. Add-ons are less useful
 - [Sublime Text](https://www.sublimetext.com/download)
 
 #### ⬛ Manage your work.
-* Put all your scripts in categorized folders (mine, not mine, important...), and open them as a "workspace". Or just dump everything lol.
+Put all your scripts in categorized folders (mine, not mine, important...), and open them as a "workspace". Or just dump everything in one lol.
 ![See the workspace on the left?](https://www.tech-recipes.com/wp-content/uploads/2020/07/Notepad-Tips-Tricks-Folder-as-Workspace.jpg)
 
-### B) Variables; conditional `while` loops; `spawn` functions
+### B) Variables; if/else; conditional while loops; spawnfunction
+**<u>Variables</u> - saves a value (true/false, number, string, function) for later.**
+`local IQ = 30` A locally declared variable is within the current script only.
+`getgenv().ScriptEnabled = "susan"` Global variables are accessible at any time.
+**<u>Loops</u> - run "while" a condition is true, or repeat "for" elements in a table.**
+```
+while ScriptEnabled do  -- this is already declared as a getgenv() variable
+  print(IQ)             -- prints 30
+  wait()                -- always have wait() or task.wait() in loops
+end
+```
+```
+local skinstable = {               -- tables are enclosed in brackets.
+  Dragonlore = true                -- this "dictionary" stores "pairs" of
+  Knife = "Karambit"               -- string/number "keys", and "values"
+  ["Your IQ"] = 0                  -- numbers or spaces require brackets
+}
+for k, v in pairs(skinstable) do   -- repeats "for" key, value in table
+  print(i, v)
+end
+```
+**<u>Spawn function</u> - begin another simultaneous "thread".**
+```
+
+```
+
+
 Sometimes games control your WalkSpeed and JumpPower by loop-setting it every frame. We can counter this with the video material.
 ```
 local LocalPlayer = game:GetService("Players").LocalPlayer -- defines LocalPlayer. GetService is better than game.Players (game.Players can be renamed; services can't)
