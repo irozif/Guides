@@ -1,23 +1,136 @@
 
 
 
+
 # Textbook Exploiting
-### Preface
-
-When you graduated third grade, you made a grand achievement: you read part of a textbook. Do you still remember how?
-- Get down main ideas, and try to understand their nuance.
-- Skim read where you need to.
-- Try things out *in practice* and go into games. This isn't homework, you're just learning how to spam remotes to pretend you know scripting. Counter-Strike kids grind on Aim-Lab all day with more determination than you.
-
-Code is actually fun when you see things come together. Finding a vulnerability and watching a game's defenses crash apart is a beautiful sight. Or, stay illiterate and be a helpless CTRL+V jockey. Your life is yours to live.
-
-### Content
+Guide to standard Roblox exploiting/pen-testing, in ordered levels of intricacy.
+> **Other recommended content (less boring than those below):**
+> [wyn#0001 "Guide to Exploiting"](https://www.youtube.com/watch?v=dCx_bVm9x88) can help you start from the bottom up.
+> [Synapse X Documentation](https://x.synapse.to/docs/development/objects_mts.html) decent guide on function hooks
+> [DevForum "All you need to know about Metatables/Metamethods"](https://devforum.roblox.com/t/all-you-need-to-know-about-metatables-and-metamethods/503259) section 1-3
+### Table of Contents
 (pending)
 
-# 1) 0IQ Basics
-Content will **amend** the video below. If you actually watch it, zoom in (his zoom sucks), and change speed to 1.25x or more (if you wish).
-wyn is concise, quick, and real. Length is 30 minutes because 0 IQ + 30 IQ is only 30 IQ.
->[wyn#0001 Exploiting #1 - Getting Started](https://www.youtube.com/watch?v=dCx_bVm9x88)
+# 0) Pre-K: Basic Lua
+
+Lua is syntactically very straightforward. This section, like Pre-K, is unnecessary and skippable; just read section **0.2**.
+
+**Contents:**
+: **0.1** Basic logic (variables, if/else, loops, tables, functions)
+: **0.2** Auspicious softwares
+
+## 0.1 Basic logic
+### Variables
+Variables save a value for repeated use, such as a:
+**string** - text encased in quotes `"Hello there"` `"24"` `"false"`
+**boolean** - a true or false value `true` `false`
+**number** - a correctly formed number `142041.4` `math.pi`
+**function** - a function, or the value returned from it `function(a,b)` `something()`
+**nil** - This Lua's special "nothing" value; it's like undeclaring a variable
+
+**Global** variables are accessible anywhere; **local** variables have limited scope (inside one script, or inside one function, etc.)
+
+You declare a variable, or edit an existing one, with an equals sign.
+```
+local hello
+function a()
+  local n = true
+end
+print(n)
+hello = true
+print(hello)
+```
+`nil`
+`true`
+
+### If/else
+Conditional statements verify conditions using operators, such as `>` or `==`. Parentheses can group sets of checks together.
+`if a then` continues if x is not false or nil
+`if not b then` continues if y is false or nil
+`if c == 5 + 5 then` continues if c is equal to 10
+`if tostring(d) and e*f >= 50` continues if d is a string, and e times f is greater than or equal to 50. Note how there are *two* equals signs, not one.
+`if (g or h) and i then` continues if either g or h exists, and i exists.
+`if somefunction(j) then` continues if the function doesn't "return" false or nil.
+
+### Loops and tables
+**Tables** - Store pairs. Use curly brackets/commas. There are 2 kinds.
+**Array** - A table where values are paired with numerically sequenced indexes/indices.
+```
+local array1 = {"stuff","goes","in","here",true,40}
+local array2 = {
+  [1] = "this is also",
+  [2] = "an array."
+}
+print(array1[3], array2[5])
+```
+`in nil`
+
+**Dictionary** - A table where values are paired with keys (strings or numbers).
+```
+local dict1 = {Spaces = "or", ["numbers"] = "need", [5] = "brackets"}
+local dict2 = {
+  ayo = function(n) print(n) end
+}
+print(dict1.Spaces, dict2.ayo(4), dict1[5])
+```
+`or 4 brackets`
+
+**Generic for loop** - Repeats for each pair of values stored in a table.
+```
+for i,v in pairs(dict1) do -- i,v is short for index,value
+  print(i,v)
+end
+```
+```
+Spaces or
+numbers need
+5 brackets
+```
+**Numeric for loop** - Repeats for a certain amount of times.
+```
+local x = 1
+for i=1,5 do
+x = x + 3 * 3
+end
+print(x)
+```
+`46`
+
+**While loop** - Repeats while a condition is true.
+```
+while x > 45 do
+  print("always remember to include a wait(). Don't crash yourself!")
+  wait()
+end
+while wait() do
+  print("many people also use syntax like this.")
+  if x <= 45 then break end    -- breaks the loop
+end
+```
+### Functions
+Functions "abstract" ideas into workable, reusable code. They take at least 0 arguments, sometimes return values.
+```
+local function factorial(num)
+  local n = 1
+  for i = 1, num do
+    n = n * i
+  end
+  return n
+end
+local function gaming()
+  print(9+10, ":(")
+end
+print(factorial(factorial(3)))
+gaming()
+```
+`720`
+
+
+
+---
+---
+---
+
 
 ### Aim:
 - **Get a text editor**. Don't save it all in your executor.
